@@ -146,3 +146,20 @@ h1 {
 #error-panel.hidden {
     transform: translateY(-100%); /* Slide up out of view */
 }
+
+/* Footer Styles */
+footer {
+    color: #647179; /* Light gray text color */
+    text-align: center; /* Center-align the text */
+    font-size: 1rem; /* Adjust font size */
+    margin-top: 20px; /* Add spacing above the footer */
+}
+
+footer a {
+    color: #007bff; /* Blue color for links */
+    text-decoration: none; /* Remove underline from links */
+}
+
+footer a:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
