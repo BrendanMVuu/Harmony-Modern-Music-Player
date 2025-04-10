@@ -72,7 +72,7 @@ h1 {
 }
 
 #progress {
-    background-color: #007bff;
+    background-color: #6f42c1;
     height: 100%;
     width: 0;
     transition: width 0.1s;
@@ -178,9 +178,9 @@ footer {
 }
 
 #logo {
-    width: 100px; /* Adjust the size as needed */
-    height: auto;
-    border-radius: 50%; /* Makes the edges round */
+    width: 80px; /* Adjust the size as needed */
+    height: 80px; /* Adjust the size as needed */
+    border-radius: 15%; /* Makes the edges round */ /* The more the radius the smoother the edges*/ 
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
     transition: opacity 0.5s ease; /* Smooth fade effect */
 }
