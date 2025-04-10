@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Player</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="Logo.png" type="image/x-icon">  <!-- Head logo icon -->
     <script src="app.js" defer></script>
 </head>
 <body>
+    <div id="logo-container">
+        <img src="Logo.png" alt="Logo" id="logo">
+    </div>
     <div id="error-panel" class="hidden">
         <p id="error-message">Please select a song first!</p>
     </div>
@@ -28,7 +32,7 @@
         </div>
         <div class="volume-container">
             <label for="volume-slider">Volume:</label>
-            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
         </div>
         <footer>
             <p>Made by Brendan Vuu</p>

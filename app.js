@@ -8,7 +8,10 @@ const timeDisplay = document.getElementById('time-display');
 const progressBar = document.getElementById('progress-bar');
 const progress = document.getElementById('progress');
 const volumeSlider = document.getElementById('volume-slider');
+const errorPanel = document.getElementById('error-panel');
+const logo = document.getElementById('logo');
 let isPlaying = false;
+let audioFileLoaded = false; // Track whether an audio file is loaded
 
 // File Loading
 fileInput.addEventListener('change', function () {
@@ -21,38 +24,29 @@ fileInput.addEventListener('change', function () {
         playPauseButton.textContent = '▶️';
         progress.style.width = '0%'; // Reset progress bar
         timeDisplay.textContent = '0:00 / 0:00'; // Reset time display
+        audioFileLoaded = true; // Mark that an audio file is loaded
+        console.log('Audio file loaded:', fileInput.files[0].name);
     }
 });
 
 // Play/Pause Functionality
 playPauseButton.addEventListener('click', function () {
-    const errorPanel = document.getElementById('error-panel');
     const errorMessage = document.getElementById('error-message');
 
-    if (audio.src) {
+    if (!audioFileLoaded) {
+        // Show the error panel if no audio file is loaded
+        errorMessage.textContent = 'Please select a song first!';
+        showError();
+    } else {
+        // Toggle play/pause functionality
         if (isPlaying) {
             audio.pause();
-            playPauseButton.textContent = '▶️';
+            playPauseButton.textContent = '▶️'; // Update button to play icon
         } else {
             audio.play();
-            playPauseButton.textContent = '⏸️';
+            playPauseButton.textContent = '⏸️'; // Update button to pause icon
         }
-        isPlaying = !isPlaying;
-
-        // Hide the error panel if it is visible
-        errorPanel.classList.remove('visible');
-        errorPanel.classList.add('hidden');
-    } else {
-        // Show the error panel with the sliding effect
-        errorMessage.textContent = 'Please select a song first!';
-        errorPanel.classList.remove('hidden');
-        errorPanel.classList.add('visible');
-
-        // Automatically hide the error panel after 3 seconds
-        setTimeout(() => {
-            errorPanel.classList.remove('visible');
-            errorPanel.classList.add('hidden');
-        }, 3000);
+        isPlaying = !isPlaying; // Toggle the isPlaying state
     }
 });
 
@@ -101,4 +95,19 @@ function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     seconds = Math.floor(seconds % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Function to show the error panel and hide the logo
+function showError() {
+    errorPanel.classList.add('visible');
+    errorPanel.classList.remove('hidden');
+    logo.classList.add('hidden'); // Hide the logo
+    setTimeout(hideError, 3000); // Automatically hide the error after 3 seconds
+}
+
+// Function to hide the error panel and show the logo
+function hideError() {
+    errorPanel.classList.add('hidden');
+    errorPanel.classList.remove('visible');
+    logo.classList.remove('hidden'); // Show the logo
 }

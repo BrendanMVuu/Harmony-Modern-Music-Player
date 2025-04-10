@@ -163,3 +163,28 @@ footer a {
 footer a:hover {
     text-decoration: underline; /* Add underline on hover */
 }
+
+footer {
+    color: #647179; /* Light gray text color */
+    text-align: center; /* Center-align the text */
+    font-size: 1.2rem; /* font size */
+    margin-top: 20px; /* Add spacing above the footer */
+}
+
+#logo-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+#logo {
+    width: 100px; /* Adjust the size as needed */
+    height: auto;
+    border-radius: 50%; /* Makes the edges round */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
+    transition: opacity 0.5s ease; /* Smooth fade effect */
+}
+
+#logo.hidden {
+    opacity: 0; /* Makes the logo invisible */
+}
