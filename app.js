@@ -26,10 +26,13 @@ fileInput.addEventListener('change', function () {
         timeDisplay.textContent = '0:00 / 0:00'; // Reset time display
         audioFileLoaded = true; // Mark that an audio file is loaded
         console.log('Audio file loaded:', fileInput.files[0].name);
+
+        // Time update event listener
+        audio.addEventListener('timeupdate', updateTimeDisplay);
     }
 });
 
-// Play/Pause Functionality
+// Play/Pause Functions 
 playPauseButton.addEventListener('click', function () {
     const errorMessage = document.getElementById('error-message');
 
@@ -52,16 +55,21 @@ playPauseButton.addEventListener('click', function () {
 
 // Stop Functionality
 stopButton.addEventListener('click', function () {
-    audio.pause();
-    audio.currentTime = 0;
-    isPlaying = false;
-    playPauseButton.textContent = '▶️';
-    progress.style.width = '0%'; // Reset progress bar
-    timeDisplay.textContent = '0:00 / 0:00'; // Reset time display
+    audio.pause(); // Pause the audio
+    audio.currentTime = 0; // Reset the audio to the beginning
+    isPlaying = false; // Update the playing state
+    playPauseButton.textContent = '▶️'; // Reset the play button icon
+    progress.style.width = '0%'; // Reset the progress bar
+    timeDisplay.textContent = '0:00 / 0:00'; // Reset the time display completely
+    songTitle.textContent = 'No song selected'; // Clear the song title
+    audioFileLoaded = false; // Mark that no audio file is loaded
+
+    // Remove the timeupdate event listener temporarily
+    audio.removeEventListener('timeupdate', updateTimeDisplay);
 });
 
-// Update Progress Bar and Time
-audio.addEventListener('timeupdate', function () {
+// Function to update the progress bar and time display
+function updateTimeDisplay() {
     if (audio.duration) {
         const currentTime = formatTime(audio.currentTime);
         const duration = formatTime(audio.duration);
@@ -70,7 +78,10 @@ audio.addEventListener('timeupdate', function () {
         const progressPercent = (audio.currentTime / audio.duration) * 100;
         progress.style.width = progressPercent + '%';
     }
-});
+}
+
+// Attach the timeupdate event listener
+audio.addEventListener('timeupdate', updateTimeDisplay);
 
 // Seek Functionality
 progressBar.addEventListener('click', function (e) {
@@ -111,3 +122,22 @@ function hideError() {
     errorPanel.classList.remove('visible');
     logo.classList.remove('hidden'); // Show the logo
 }
+
+//Loop button function 
+const loopButton = document.getElementById('loop');
+
+// Tracking whether looping is enabled
+let isLooping = false;
+
+// Loop button event listener
+loopButton.addEventListener('click', function () {
+    isLooping = !isLooping; // The Looping State
+    audio.loop = isLooping; // Audio loop property
+
+    if (isLooping) {
+        loopButton.textContent = '🔂'; // Indicating Looping is enabled (On)
+
+    } else {
+            loopButton.textContent = '🔁'; // Indicating Looping is disabled (Off)
+        }
+    });
