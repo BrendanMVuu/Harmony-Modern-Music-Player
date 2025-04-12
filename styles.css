@@ -75,7 +75,7 @@ h1 {
     background-color: #6f42c1;
     height: 100%;
     width: 0;
-    transition: width 0.1s;
+    transition: width 0.2s;
 }
 
 /* Time Display */
@@ -135,7 +135,7 @@ h1 {
     font-size: 1.2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     transform: translateY(-100%); /* Hidden above the screen */
-    transition: transform 0.5s ease; /* Sliding effect */
+    transition: transform 0.7s ease; /* Sliding effect */
     z-index: 1000;
 }
 
