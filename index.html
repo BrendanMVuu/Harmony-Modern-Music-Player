@@ -39,24 +39,5 @@
             <p>Made by Brendan Vuu</p> <!-- Footer/Footing text --> 
         </footer>
     </div>
-    <script>
-        const upload = document.getElementById('audioUpload');
-        const player = document.getElementById('audioPlayer');
-
-        // Ensure the audio player is hidden initially
-        player.style.display = 'none';
-
-        upload.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                player.src = url;
-                player.style.display = 'block'; // Show the player when a file is uploaded
-                player.play();
-            } else {
-                player.style.display = 'none'; // Ensure it remains hidden if no file is selected
-            }
-        });
-    </script>
 </body>
 </html>
