@@ -64,6 +64,9 @@ stopButton.addEventListener('click', function () {
     songTitle.textContent = 'No song selected'; // Clear the song title
     audioFileLoaded = false; // Mark that no audio file is loaded
 
+    // Clear the file input value to allow re-uploading the same file
+    fileInput.value = '';
+
     // Remove the timeupdate event listener temporarily
     audio.removeEventListener('timeupdate', updateTimeDisplay);
 });
