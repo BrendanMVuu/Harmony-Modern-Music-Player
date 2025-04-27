@@ -141,3 +141,63 @@ loopButton.addEventListener('click', function () {
             loopButton.textContent = '🔁'; // Indicating Looping is disabled (Off)
         }
     });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('file-input');
+    const songTitle = document.getElementById('song-title');
+    const body = document.body;
+
+    // Handle drag events for the entire page
+    body.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        body.classList.add('dragging');
+    });
+
+    body.addEventListener('dragleave', () => {
+        body.classList.remove('dragging');
+    });
+
+    body.addEventListener('drop', (event) => {
+        event.preventDefault();
+        body.classList.remove('dragging');
+
+        const files = event.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('audio/')) {
+            handleFile(files[0]);
+        } else {
+            alert('Please drop a valid audio file.');
+        }
+    });
+
+    // Handle file input change
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    });
+
+    // Function to handle file
+    function handleFile(file) {
+        const fileURL = URL.createObjectURL(file);
+        audio.src = fileURL; // Set the audio source to the dropped file
+        songTitle.textContent = file.name; // Update the song title
+        isPlaying = false; // Reset the play state
+        playPauseButton.textContent = '▶️'; // Reset the play button icon
+        progress.style.width = '0%'; // Reset the progress bar
+        timeDisplay.textContent = '0:00 / 0:00'; // Reset the time display
+        audioFileLoaded = true; // Mark that an audio file is loaded
+        console.log('Audio file loaded:', file.name);
+
+        // Automatically play the audio after loading
+        audio.play().then(() => {
+            isPlaying = true;
+            playPauseButton.textContent = '⏸️'; // Update the play button to pause icon
+        }).catch((error) => {
+            console.error('Error playing audio:', error);
+        });
+
+        // Attach the timeupdate event listener
+        audio.addEventListener('timeupdate', updateTimeDisplay);
+    }
+});

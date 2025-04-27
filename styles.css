@@ -10,6 +10,11 @@ body {
     align-items: center;
 }
 
+body.dragging {
+    background-color: #282c34;
+    border: none;
+}
+
 /* Music Player Container */
 #music-player {
     background-color: #3a3f47;
@@ -187,4 +192,20 @@ footer {
 
 #logo.hidden {
     opacity: 0; /* Makes the logo invisible */
+}
+
+.drag-drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+    cursor: pointer;
+    transition: background-color 0.5s;
+}
+
+.drag-drop-area.dragging {
+    background-color: transparent;
+    border-color: transparent;
 }
