@@ -18,7 +18,7 @@ body {
 
 .player-wrapper {
     background: rgba(40, 44, 52, 0.85);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    box-shadow: 0 0 24px 8px #6f42c180, 0 0 48px 16px #007bff40;
     backdrop-filter: blur(8px);
     border-radius: 32px;
     padding: 3.5rem 2.5rem 2rem 2.5rem;
@@ -73,11 +73,11 @@ body {
 }
 
 .file-label {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: #fff;
     background: #6f42c1;
-    padding: 1.2rem 2.5rem;
-    border-radius: 12px;
+    padding: 0.8rem 1.8rem;
+    border-radius: 10px;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
     outline: none;

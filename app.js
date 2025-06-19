@@ -110,7 +110,7 @@ audio.addEventListener('ended', () => {
 
 // Volume
 volumeSlider.addEventListener('input', function () {
-    audio.volume = this.value;
+    audio.volume = this.value / 10;
 });
 
 // Format Time
