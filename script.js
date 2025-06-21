@@ -16,20 +16,6 @@ function initApp() {
     setupUploadHandlers();
     setupAudioEventListeners();
     updateDisplay();
-    
-    // Volume slider event listeners
-    const volumeSlider = document.getElementById('volumeSlider');
-    if (volumeSlider) {
-        volumeSlider.addEventListener('input', function() {
-            setVolume(this.value);
-        });
-        volumeSlider.addEventListener('change', function() {
-            setVolume(this.value);
-        });
-        volumeSlider.addEventListener('touchend', function() {
-            setVolume(this.value);
-        });
-    }
 }
 
 // Setup audio event listeners
