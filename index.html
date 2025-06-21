@@ -58,7 +58,7 @@
                     <span class="time-display" id="totalTimeDisplay">0:00</span>
                     <div class="volume-container">
                         <i class="fas fa-volume-up volume-icon" id="volumeIcon" onclick="toggleMute()"></i>
-                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70" onchange="setVolume(this.value)">
+                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70" onchange="setVolume(this.value)" ontouchend="setVolume(this.value)">
                     </div>
                 </div>
                 <audio id="mainAudioPlayer">
