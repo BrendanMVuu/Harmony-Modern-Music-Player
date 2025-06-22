@@ -253,7 +253,9 @@ function playSong(index) {
 function updateCurrentSongInfo() {
     if (currentSong) {
         document.getElementById('currentSongTitle').textContent = currentSong.title;
-        document.getElementById('currentDuration').textContent = formatTime(currentSong.duration);
+        // Use audioPlayer.duration if available, fallback to currentSong.duration
+        const duration = audioPlayer.duration && !isNaN(audioPlayer.duration) ? audioPlayer.duration : currentSong.duration;
+        document.getElementById('currentDuration').textContent = formatTime(duration);
     }
 }
 
