@@ -1,4 +1,4 @@
-// Player state
+// Player
 let uploadedSongs = [];
 let currentSong = null;
 let currentIndex = 0;
@@ -11,14 +11,14 @@ let deleteTimer = null;
 // Audio element
 const audioPlayer = document.getElementById('mainAudioPlayer');
 
-// Initialize the app
+// App Initialize 
 function initApp() {
     setupUploadHandlers();
     setupAudioEventListeners();
     updateDisplay();
 }
 
-// Setup audio event listeners
+// Setup audio and event listeners
 function setupAudioEventListeners() {
     audioPlayer.addEventListener('loadedmetadata', () => {
         updateCurrentSongInfo();
@@ -50,7 +50,7 @@ function setupAudioEventListeners() {
     audioPlayer.volume = volume / 100;
 }
 
-// Setup upload handlers
+// Upload handlers
 function setupUploadHandlers() {
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
