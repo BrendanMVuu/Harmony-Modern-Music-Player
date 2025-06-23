@@ -583,3 +583,24 @@ body {
         margin: 10px 0 0 0;
     }
 }
+
+:root {
+  --primary: #ff6b6b;
+  --secondary: #4ecdc4;
+  --background: rgba(255,255,255,0.1);
+  --glass: rgba(255,255,255,0.15);
+}
+
+button:focus, .control-btn:focus {
+  outline: 2px solid var(--primary, #ff6b6b);
+  outline-offset: 2px;
+}
+/* Scrollbar Color and styles */
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--glass, rgba(255,255,255,0.1));
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary, #ff6b6b);
+  border-radius: 4px;
+}

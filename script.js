@@ -497,7 +497,7 @@ function fadeAudio(targetVolume, duration, callback) {
     function animate(now) {
         const elapsed = now - startTime;
         if (elapsed < duration) {
-            audioPlayer.volume = startVolume + (volumeDiff * (elapsed / duration));
+            audioPlayer.volume = Math.max(0, Math.min(1, startVolume + (volumeDiff * (elapsed / duration))));
             requestAnimationFrame(animate);
         } else {
             audioPlayer.volume = targetVolume;
