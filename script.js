@@ -34,12 +34,16 @@ function setupAudioEventListeners() {
         isPlaying = true;
         updatePlayButton();
         updatePlaylist();
+        // Fade in audio
+        fadeAudio(1, 200);
     });
 
     audioPlayer.addEventListener('pause', () => {
         isPlaying = false;
         updatePlayButton();
         updatePlaylist();
+        // Fade out audio
+        fadeAudio(0.2, 200);
     });
 
     audioPlayer.addEventListener('ended', () => {
@@ -269,7 +273,8 @@ function togglePlay() {
     }
     
     if (isPlaying) {
-        audioPlayer.pause();
+        // Fade out before pausing
+        fadeAudio(0, 200, () => audioPlayer.pause());
     } else {
         audioPlayer.play().catch(e => console.log('Play prevented:', e));
     }
@@ -476,6 +481,24 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Fade audio function
+function fadeAudio(targetVolume, duration, callback) {
+    const startVolume = audioPlayer.volume;
+    const volumeDiff = targetVolume - startVolume;
+    const startTime = performance.now();
+    function animate(now) {
+        const elapsed = now - startTime;
+        if (elapsed < duration) {
+            audioPlayer.volume = startVolume + (volumeDiff * (elapsed / duration));
+            requestAnimationFrame(animate);
+        } else {
+            audioPlayer.volume = targetVolume;
+            if (callback) callback();
+        }
+    }
+    requestAnimationFrame(animate);
 }
 
 // Initialize app when page loads
