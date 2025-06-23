@@ -439,11 +439,16 @@ function seekTo(event) {
 function setVolume(value) {
     volume = value;
     audioPlayer.volume = value / 100;
-    
-    if (isMuted && value > 0) {
-        isMuted = false;
-        updateVolumeIcon();
+    if (value == 0) {
+        isMuted = true;
+        audioPlayer.muted = true;
+    } else {
+        if (isMuted) {
+            isMuted = false;
+            audioPlayer.muted = false;
+        }
     }
+    updateVolumeIcon();
 }
 
 // Toggle mute
