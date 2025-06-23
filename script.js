@@ -271,12 +271,18 @@ function togglePlay() {
         }
         return;
     }
-    
     if (isPlaying) {
-        // Fade out before pausing
-        fadeAudio(0, 200, () => audioPlayer.pause());
+        // Fade out before pausing, then restore volume to user's value
+        fadeAudio(0, 200, () => {
+            audioPlayer.pause();
+            audioPlayer.volume = volume / 100; // Restore user's volume after pause
+        });
     } else {
-        audioPlayer.play().catch(e => console.log('Play prevented:', e));
+        // Fade in to user's volume
+        audioPlayer.volume = 0;
+        audioPlayer.play().then(() => {
+            fadeAudio(volume / 100, 200);
+        }).catch(e => console.log('Play prevented:', e));
     }
 }
 
