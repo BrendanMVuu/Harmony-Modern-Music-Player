@@ -344,31 +344,28 @@ function hideDeleteModal() {
 
 // Confirm delete with timer
 function confirmDelete() {
-    if (deleteIndex === -1) return;
-    
-    const confirmBtn = document.getElementById('confirmBtn');
-    const timerDisplay = document.getElementById('timerDisplay');
-    
-    // Disable button and show timer
-    confirmBtn.disabled = true;
-    timerDisplay.style.display = 'block';
-    
-    let timeLeft = 3;
-    timerDisplay.textContent = `Removing in ${timeLeft} seconds...`;
-    confirmBtn.textContent = `Removing (${timeLeft})`;
-    
-    deleteTimer = setInterval(() => {
-        timeLeft--;
-        if (timeLeft > 0) {
-            timerDisplay.textContent = `Removing in ${timeLeft} seconds...`;
-            confirmBtn.textContent = `Removing (${timeLeft})`;
+    if (deleteIndex >= 0 && deleteIndex < uploadedSongs.length) {
+        // Find the playlist item DOM element
+        const playlistContainer = document.getElementById('playlistContainer');
+        const playlistItems = playlistContainer.getElementsByClassName('playlist-item');
+        const item = playlistItems[deleteIndex];
+
+        if (item) {
+            // Add the dust effect class
+            item.classList.add('dust-disappear');
+            // Remove the song from the array after the animation
+            setTimeout(() => {
+                uploadedSongs.splice(deleteIndex, 1);
+                updateDisplay();
+                hideDeleteModal();
+            }, 700); // Match the animation duration
         } else {
-            clearInterval(deleteTimer);
-            deleteTimer = null;
-            executeDelete();
+            // Fallback: just delete if not found
+            uploadedSongs.splice(deleteIndex, 1);
+            updateDisplay();
             hideDeleteModal();
         }
-    }, 1000);
+    }
 }
 
 // Execute the actual delete

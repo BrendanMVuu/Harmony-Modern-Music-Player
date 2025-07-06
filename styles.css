@@ -595,12 +595,43 @@ button:focus, .control-btn:focus {
   outline: 2px solid var(--primary, #ff6b6b);
   outline-offset: 2px;
 }
-/* Scrollbar Color and styles */
-::-webkit-scrollbar {
-  width: 8px;
-  background: var(--glass, rgba(255,255,255,0.1));
+
+/* The Random Fun Stuff */
+
+
+/* Dust particle keyframes */
+@keyframes dust-disappear {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1) translateY(0);
+  }
+  60% {
+    opacity: 0.7;
+    filter: blur(1px);
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(1.2) translateY(-30px);
+  }
 }
-::-webkit-scrollbar-thumb {
-  background: var(--primary, #ff6b6b);
-  border-radius: 4px;
+
+/* Class to trigger the effect */
+.dust-disappear {
+  animation: dust-disappear 0.7s forwards;
+  pointer-events: none;
+  position: relative;
+  z-index: 2;
+  overflow: hidden; /* Prevent scrollbar during animation */
+}
+
+/* Hide scrollbar in playlist-section if any item is disappearing */
+.playlist-section:has(.dust-disappear) {
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* IE/Edge */
+}
+.playlist-section:has(.dust-disappear)::-webkit-scrollbar {
+  display: none;                 /* Chrome/Safari */
 }
