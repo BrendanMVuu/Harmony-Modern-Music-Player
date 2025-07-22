@@ -1,105 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusicPlayer.Studio</title>
+    <title>Harmony | Modern Music Player</title>
+    <link rel="icon" type="image/png" href="Logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" href="Logo.png" type="image/x-icon">
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="title">MusicPlayer.Studio</div>
-            <div class="subtitle">Upload your MP3 files and start listening</div>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200 transition-colors duration-300">
+    <div class="min-h-screen flex flex-col">
+        <!-- Welcome Animation -->
+        <div id="welcome-screen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex flex-col items-center justify-center transition-opacity duration-500">
+            <div class="text-center">
+                <div class="mb-6">
+                    <img src="Logo.png" alt="Harmony Logo" class="w-20 h-20 mx-auto object-contain rounded-2xl slide-up-logo">
+                </div>
+                <div class="fade-in">
+                    <h1 class="text-5xl font-bold mb-4 text-indigo-600 dark:text-indigo-400">Harmony</h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-300">Upload your MP3 files and start listening</p>
+                </div>
+            </div>
         </div>
-
-        <!-- Upload Section -->
-        <div class="upload-section" id="uploadArea">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">Drag & Drop MP3 Files Here</div>
-            <div class="upload-subtext">or click to browse and select your music files</div>
-            <input type="file" class="upload-input" id="fileInput" multiple accept=".mp3,audio/mpeg">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-upload"></i> Choose Files
+        <!-- Main Layout -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Left Sidebar -->
+            <div id="left-sidebar" class="w-20 bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-6 slide-in-left">
+                <div class="mb-10">
+                    <img src="Logo.png" alt="Harmony Logo" class="w-12 h-12 object-contain rounded-xl">
+                </div>
+                <nav class="flex-1 flex flex-col items-center space-y-8">
+                    <button id="player-tab" class="p-3 rounded-full bg-indigo-100 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 transition-all hover:bg-indigo-200 dark:hover:bg-gray-600">
+                        <i class="fas fa-music text-xl"></i>
+                    </button>
+                    <button id="history-tab" class="p-3 rounded-full text-gray-500 dark:text-gray-400 transition-all hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <i class="fas fa-history text-xl"></i>
+                    </button>
+                    <button id="settings-tab" class="p-3 rounded-full text-gray-500 dark:text-gray-400 transition-all hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <i class="fas fa-cog text-xl"></i>
+                    </button>
+                </nav>
+            </div>
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Player Section -->
+                <div id="player-section" class="flex-1 flex flex-col items-center justify-center p-6">
+                    <div class="w-full max-w-2xl">
+                        <div id="upload-container" class="relative border-4 border-gray-200 dark:border-gray-700 rounded-3xl p-1 mb-8 transition-all duration-300">
+                            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 w-full h-full">
+                                <div class="flex flex-col items-center justify-center text-center">
+                                    <div class="w-16 h-16 bg-indigo-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                        <i class="fas fa-cloud-upload-alt text-2xl text-indigo-600 dark:text-indigo-400"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-2">Drag & Drop MP3 Files</h3>
+                                    <p class="text-gray-500 dark:text-gray-400 mb-4">or</p>
+                                    <button id="upload-btn" class="px-6 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-full font-medium transition-all hover:bg-indigo-700 dark:hover:bg-indigo-600">
+                                        Browse Files
+                                    </button>
+                                    <input type="file" id="file-input" class="hidden" accept=".mp3" multiple>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="player-ui" class="hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                                <!-- Now Playing -->
+                                <div class="p-6 flex flex-col items-center justify-center">
+                                    <h3 id="now-playing-title" class="text-lg font-semibold text-center break-all"></h3>
+                                    <p id="now-playing-artist" class="text-gray-500 dark:text-gray-400 text-center break-all"></p>
+                                </div>
+                                <!-- Regular Progress Bar -->
+                                <div class="w-full px-6 pb-4">
+                                    <div class="progress-bar bg-gray-200 dark:bg-gray-700 rounded h-2 w-full cursor-pointer" id="progress-bar" style="position: relative;">
+                                        <div id="progress-fill" class="progress-fill bg-indigo-600 dark:bg-indigo-400 h-2 rounded transition-all" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="flex justify-between w-full text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        <span id="current-time"></span>
+                                        <span id="duration"></span>
+                                    </div>
+                                </div>
+                                <!-- Controls -->
+                                <div class="px-6 pb-6 flex items-center justify-between">
+                                    <button id="shuffle-btn" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400">
+                                        <i class="fas fa-random text-xl"></i>
+                                    </button>
+                                    <button id="prev-btn" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400">
+                                        <i class="fas fa-step-backward text-2xl"></i>
+                                    </button>
+                                    <button id="play-btn" class="w-12 h-12 bg-indigo-600 dark:bg-indigo-500 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 dark:hover:bg-indigo-600">
+                                        <i class="fas fa-play text-xl"></i>
+                                    </button>
+                                    <button id="next-btn" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400">
+                                        <i class="fas fa-step-forward text-2xl"></i>
+                                    </button>
+                                    <button id="repeat-btn" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400">
+                                        <i class="fas fa-redo text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- History Section -->
+                <div id="history-section" class="hidden flex-1 p-6 overflow-y-auto">
+                    <div class="max-w-4xl mx-auto">
+                        <h2 class="text-2xl font-bold mb-6">Recently Played</h2>
+                        <div id="history-list" class="space-y-3">
+                            <!-- History items will be added here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Settings Section -->
+                <div id="settings-section" class="hidden flex-1 p-6 overflow-y-auto">
+                    <div class="max-w-4xl mx-auto">
+                        <h2 class="text-2xl font-bold mb-6">Settings</h2>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                            <h3 class="text-lg font-semibold mb-4">About</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-4">
+                                Harmony is a music player, you upload and play your MP3.
+                            </p>
+                            <p class="text-gray-600 dark:text-gray-300">
+                                Version 1.0.0
+                            </p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                            <h3 class="text-lg font-semibold mb-4">Credits</h3>
+                            <div class="site-footer text-gray-600 dark:text-gray-300">
+                                <p class="mb-2">Harmony | Made by Brendan Vuu</p>
+                                <p>
+                                    <a href="https://www.netlify.com/" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline">Powered by netlify</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Playlist Sidebar -->
+            <div id="playlist-sidebar" class="w-80 bg-white dark:bg-gray-800 shadow-lg transform translate-x-full fixed right-0 top-0 h-full z-40 transition-transform duration-300">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold">Playlist</h2>
+                    <button id="close-playlist" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="playlist" class="overflow-y-auto h-[calc(100%-56px)]">
+                    <!-- Playlist items will be added here from JavaScript -->
+                </div>
+            </div>
+            <!-- Playlist Toggle Button -->
+            <button id="playlist-toggle" class="fixed right-4 bottom-4 w-12 h-12 bg-indigo-600 dark:bg-indigo-500 text-white rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all">
+                <i class="fas fa-list text-xl"></i>
             </button>
         </div>
-
-        <!-- Player Section -->
-        <div class="player-section" id="playerSection">
-            <div class="now-playing-art" id="nowPlayingArt">
-                <img id="albumCover" src="Logo.png" alt="Album Cover" style="width:100%;height:100%;object-fit:cover;border-radius:15px;box-shadow:0 4px 16px rgba(0,0,0,0.25);">
-            </div>
-            <div class="song-info">
-                <div class="song-title" id="currentSongTitle">No song selected</div>
-                <div class="song-duration" id="currentDuration">0:00</div>
-            </div>
-            
-            <div class="player-controls">
-                <button class="control-btn" onclick="previousSong()">
-                    <i class="fas fa-step-backward"></i>
-                </button>
-                <button class="control-btn play-btn" onclick="togglePlay()">
-                    <i class="fas fa-play" id="playIcon"></i>
-                </button>
-                <button class="control-btn" onclick="nextSong()">
-                    <i class="fas fa-step-forward"></i>
-                </button>
-                <button class="upload-new-btn" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-plus"></i> Add More
-                </button>
-            </div>
-            
-            <div class="audio-player" id="audioPlayerContainer">
-                <div class="custom-audio-controls">
-                    <span class="time-display" id="currentTimeDisplay">0:00</span>
-                    <div class="progress-container" onclick="seekTo(event)">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
-                    <span class="time-display" id="totalTimeDisplay">0:00</span>
-                    <div class="volume-container">
-                        <i class="fas fa-volume-up volume-icon" id="volumeIcon" onclick="toggleMute()"></i>
-                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70" onchange="setVolume(this.value)" ontouchend="setVolume(this.value)">
-                    </div>
-                </div>
-                <audio id="mainAudioPlayer">
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
-            
-            <div class="playlist-section" id="playlistSection">
-                <div class="playlist-title">Playlist (<span id="songCount">0</span> songs)</div>
-                <div id="playlistContainer">
-                    <!-- Playlist items appear -->
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Confirmation Modal and Deletion -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal">
-            <div class="modal-title">⚠️ Remove Song</div>
-            <div class="modal-message" id="modalMessage">Are you sure you want to remove this song from your playlist?</div>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-yes" id="confirmBtn" onclick="confirmDelete()">Yes, Remove</button>
-                <button class="modal-btn modal-btn-no" onclick="hideDeleteModal()">Cancel</button>
-            </div>
-            <div class="timer-display" id="timerDisplay" style="display: none;"></div>
-        </div>
-    </div>
-
-    <!-- Hidden Audio Element -->
-    <audio id="audioPlayer" controls style="display: none;"></audio>
-
     <script src="script.js"></script>
-    
-    <footer class="site-footer"> <!--The footer and the footer link-->
-        <p>MusicPlayer.Studio. Made by Brendan Vuu</p>
-        <p>
-  <a href="https://www.netlify.com/" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">Powered by netlify</a>
-</p>
-    </footer>
 </body>
 </html>
