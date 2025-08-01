@@ -159,10 +159,25 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // If it's the same song but not playing, just resume
+        if (currentSongIndex === index && audioElement.src === song.url && !isPlaying) {
+            audioElement.play()
+                .then(() => {
+                    isPlaying = true;
+                    playBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
+                    updatePlayerUI();
+                    updateTimeDisplay();
+                })
+                .catch(error => {
+                    console.error('Resume playback failed:', error);
+                });
+            return;
+        }
+        
         currentSongIndex = index;
         renderPlaylist();
 
-        // Reset audio element completely
+        // Reset audio element completely only when switching to a different song
         audioElement.pause();
         audioElement.currentTime = 0;
         
@@ -224,7 +239,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isPlaying) {
             pauseSong();
         } else {
-            playSong(currentSongIndex);
+            // If we're resuming the same song, just resume playback
+            if (audioElement.src && audioElement.src === songs[currentSongIndex].url) {
+                audioElement.play()
+                    .then(() => {
+                        isPlaying = true;
+                        playBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
+                        updateTimeDisplay();
+                    })
+                    .catch(error => {
+                        console.error('Resume playback failed:', error);
+                    });
+            } else {
+                playSong(currentSongIndex);
+            }
         }
     }
     
@@ -376,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${song.artist ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate">${song.artist}</p>` : ''}
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400">
-                ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}
             </div>
         `;
 
@@ -526,6 +554,32 @@ document.addEventListener('DOMContentLoaded', function() {
     settingsTab.addEventListener('click', () => {
         switchToSection(settingsSection);
     });
+    
+    // Logo reset functionality
+    const logoElements = document.querySelectorAll('img[src="Logo.png"]'); // Select all logo images
+
+    logoElements.forEach(logo => {
+        logo.addEventListener('click', () => {
+            // Option 1: Simple page reload
+            location.reload();
+            
+            // Option 2: Alternative - reset to homepage (if you prefer this instead)
+            // window.location.href = window.location.origin + window.location.pathname;
+        });
+        
+        // Add cursor pointer to indicate it's clickable
+        logo.style.cursor = 'pointer';
+        
+        // Optional: Add hover effect
+        logo.addEventListener('mouseenter', () => {
+            logo.style.opacity = '0.8';
+            logo.style.transition = 'opacity 0.2s ease';
+        });
+        
+        logo.addEventListener('mouseleave', () => {
+            logo.style.opacity = '1';
+        });
+    });
 });
 
 // Format time in MM:SS format
@@ -540,4 +594,12 @@ function formatTime(seconds) {
 function getSongName(filename) {
     // Remove only the last .mp3 or .mpeg extension, not the last parenthesis
     return filename.replace(/\.(mp3|mpeg)$/i, '');
+
+
+    //Logo reset function
+    const logoElements = document.querySelectorAll('img[src="Logo.png"]');
+
+    logoElements.forEach(logo => {
+        logo.src = "Logo.png";
+    });
 }
