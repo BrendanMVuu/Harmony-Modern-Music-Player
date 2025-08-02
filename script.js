@@ -73,6 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const historySection = document.getElementById('history-section');
     const settingsSection = document.getElementById('settings-section');
     
+    // Debug: Check if buttons exist
+    console.log('DOM Elements Check:');
+    console.log('prevBtn:', prevBtn);
+    console.log('nextBtn:', nextBtn);
+    console.log('playBtn:', playBtn);
+    
     // Initialize audio context on first user interaction
     function initAudioContext() {
         if (!audioContext) {
@@ -143,9 +149,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Play song
     function playSong(index) {
+        console.log('playSong called with index:', index, 'total songs:', songs.length);
         if (songs.length === 0) return;
         if (index >= songs.length) index = 0;
         if (index < 0) index = songs.length - 1;
+        
+        // Initialize audio context if needed
+        initAudioContext();
         
         const song = songs[index];
         
@@ -154,10 +164,10 @@ document.addEventListener('DOMContentLoaded', function() {
             addToHistory(song);
         }
 
-        // If it's the same song and already playing, don't restart
-        if (currentSongIndex === index && isPlaying) {
-            return;
-        }
+        // Remove the blocking check - always allow song switching
+        // This was preventing next/prev from working during playback
+        // Remove the blocking check - always allow song switching
+        // This was preventing next/prev from working during playback
         
         // If it's the same song but not playing, just resume
         if (currentSongIndex === index && audioElement.src === song.url && !isPlaying) {
@@ -174,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Always update currentSongIndex and switch songs
         currentSongIndex = index;
         renderPlaylist();
 
@@ -267,10 +278,35 @@ document.addEventListener('DOMContentLoaded', function() {
         shuffleIndex = 0;
     }
     
-    // Play next song
-    function playNext() {
+    // Play previous song
+    function playPrev() {
+        console.log('playPrev called - current song index:', currentSongIndex, 'total songs:', songs.length);
         if (songs.length === 0) return;
         
+        if (isShuffle) {
+            // Go back in shuffle order
+            if (shuffleIndex > 1) {
+                shuffleIndex -= 2; // Go back two positions
+                currentSongIndex = shuffledPlaylist[shuffleIndex];
+                shuffleIndex++; // Will be used for next song
+            } else {
+                // If at beginning, wrap to a random song
+                shuffleIndex = 0;
+                currentSongIndex = shuffledPlaylist[Math.floor(Math.random() * shuffledPlaylist.length)];
+            }
+        } else {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        }
+        
+        console.log('playPrev - new song index:', currentSongIndex, 'song name:', songs[currentSongIndex]?.name);
+        playSong(currentSongIndex);
+    }
+    
+    // Play next song
+    function playNext() {
+        console.log('playNext called - current song index:', currentSongIndex, 'total songs:', songs.length);
+        if (songs.length === 0) return;
+
         if (isShuffle && songs.length > 1) {
             // Use shuffled playlist for next song
             if (shuffledPlaylist.length === 0 || shuffleIndex >= shuffledPlaylist.length) {
@@ -290,28 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
         }
         
-        playSong(currentSongIndex);
-    }
-    
-    // Play previous song
-    function playPrev() {
-        if (songs.length === 0) return;
-        
-        if (isShuffle) {
-            // Go back in shuffle order
-            if (shuffleIndex > 1) {
-                shuffleIndex -= 2; // Go back two positions
-                currentSongIndex = shuffledPlaylist[shuffleIndex];
-                shuffleIndex++; // Will be used for next song
-            } else {
-                // If at beginning, wrap to a random song
-                shuffleIndex = 0;
-                currentSongIndex = shuffledPlaylist[Math.floor(Math.random() * shuffledPlaylist.length)];
-            }
-        } else {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-        }
-        
+        console.log('playNext - new song index:', currentSongIndex, 'song name:', songs[currentSongIndex]?.name);
         playSong(currentSongIndex);
     }
     
@@ -483,8 +498,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Player controls
     playBtn.addEventListener('click', togglePlay);
-    prevBtn.addEventListener('click', playPrev);
-    nextBtn.addEventListener('click', playNext);
+    
+    // Enhanced next/prev functions with better responsiveness
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Previous button clicked!', 'Songs length:', songs.length, 'Current index:', currentSongIndex);
+        if (songs.length === 0) {
+            console.log('No songs available');
+            return;
+        }
+        console.log('Calling playPrev()...');
+        playPrev(); // Use the proper function that handles shuffle logic
+    });
+    
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Next button clicked!', 'Songs length:', songs.length, 'Current index:', currentSongIndex);
+        if (songs.length === 0) {
+            console.log('No songs available');
+            return;
+        }
+        console.log('Calling playNext()...');
+        playNext(); // Use the proper function that handles shuffle logic
+    });
+    
     shuffleBtn.addEventListener('click', toggleShuffle);
     repeatBtn.addEventListener('click', toggleRepeat);
     
