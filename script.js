@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const playlistToggle = document.getElementById('playlist-toggle');
     const closePlaylist = document.getElementById('close-playlist');
     const playlist = document.getElementById('playlist');
+    const playlistUploadBtn = document.getElementById('playlist-upload-btn');
+    const playlistFileInput = document.getElementById('playlist-file-input');
     const historyList = document.getElementById('history-list');
     const playerTab = document.getElementById('player-tab');
     const historyTab = document.getElementById('history-tab');
@@ -484,6 +486,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fileInput.files.length > 0) {
             handleFiles(fileInput.files);
             fileInput.value = ''; // Reset input to allow selecting same file again
+        }
+    });
+    
+    // Playlist upload functionality
+    playlistUploadBtn.addEventListener('click', () => {
+        playlistFileInput.click();
+    });
+    
+    playlistFileInput.addEventListener('change', () => {
+        if (playlistFileInput.files.length > 0) {
+            handleFiles(playlistFileInput.files);
+            playlistFileInput.value = ''; // Reset input to allow selecting same file again
         }
     });
     
