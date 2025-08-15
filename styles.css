@@ -51,6 +51,8 @@
     border-color: #6366f1 !important;
     background-color: rgba(99, 102, 241, 0.1) !important;
 }
+
+/* FIX: Added initial opacity and transition for smooth hover effect */
 .waveform {
     position: relative;
     height: 60px;
@@ -61,6 +63,8 @@
     background-color: rgba(99, 102, 241, 0.1);
     border-radius: 4px;
     margin: 0 auto;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease; /* Smooth transition */
 }
 .waveform-container {
     position: absolute;
@@ -100,9 +104,12 @@
     background-color: currentColor;
     transition: width 0.1s linear;
 }
+
+/* This rule now has an effect due to the changes in .waveform */
 .playlist-item:hover .waveform {
     opacity: 1;
 }
+
 .theme-option {
     transition: all 0.3s ease;
 }
@@ -168,4 +175,4 @@
         opacity: 0;
         transform: translateY(-20px);
     }
-}
+}   

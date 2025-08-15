@@ -1,6 +1,5 @@
-// Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-    // Hide welcome screen after 2 seconds
+    // Hide the welcome screen after 2 seconds
     setTimeout(() => {
         document.getElementById('welcome-screen').style.opacity = '0';
         setTimeout(() => {
@@ -17,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let isPlaying = false;
     let isShuffle = false;
     let isRepeat = false;
-    let currentTheme = 'system';
-    let currentColor = 'indigo';
+    let currentTheme = 'system'; // This variable is declared but not used in the provided code
+    let currentColor = 'indigo'; // This variable is declared but not used in the provided code
     let shuffledPlaylist = []; // Array to track shuffled order
     let shuffleIndex = 0; // Current position in shuffle
     
@@ -36,8 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     isPlaying = true;
                     playBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
                 });
-        } else if (songs.length > 1) {
-            // Only auto-advance if there are multiple songs
+        } else if (songs.length > 1) { // Only auto-advance if there are multiple songs
             playNext();
         }
     });
@@ -51,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('file-input');
     const playerUI = document.getElementById('player-ui');
     const nowPlayingTitle = document.getElementById('now-playing-title');
-    const nowPlayingArtist = document.getElementById('now-playing-artist');
+    // REMOVED: const nowPlayingArtist = document.getElementById('now-playing-artist');
     const playBtn = document.getElementById('play-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
@@ -75,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const historySection = document.getElementById('history-section');
     const settingsSection = document.getElementById('settings-section');
     
-    // Debug: Check if buttons exist
+    // Debug: Check if buttons exist (consider removing for production)
     console.log('DOM Elements Check:');
     console.log('prevBtn:', prevBtn);
     console.log('nextBtn:', nextBtn);
@@ -86,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
-            analyser.fftSize = 32;
+            analyser.fftSize = 32; // Consider 64, 128, or 256 for more detailed visualizer data
             
             const source = audioContext.createMediaElementSource(audioElement);
             source.connect(analyser);
@@ -102,6 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const percent = (audioElement.currentTime / audioElement.duration) * 100;
         progressFill.style.width = percent + '%';
+        
+        // Ensure time display is also updated along with progress bar
+        updateTimeDisplay();
     }
 
     // Seek on progress bar click
@@ -110,8 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const rect = progressBar.getBoundingClientRect();
         const percent = (e.clientX - rect.left) / rect.width;
         audioElement.currentTime = percent * audioElement.duration;
-        updateProgressBar();
-        updateTimeDisplay();
+        updateProgressBar(); // This call will now also update the time display
     });
 
     // Update time display and progress bar
@@ -119,14 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentTime = audioElement.currentTime;
         currentTimeEl.textContent = formatTime(currentTime);
         
-        // Only update duration if we don't have it set yet
-        if (audioElement.duration && !isNaN(audioElement.duration) && durationEl.textContent === "0:00") {
+        // Always update duration if available and valid
+        if (audioElement.duration && !isNaN(audioElement.duration)) {
             durationEl.textContent = formatTime(audioElement.duration);
-        }
-        
-        updateProgressBar();
-        if (isPlaying) {
-            requestAnimationFrame(updateTimeDisplay);
         }
     }
     
@@ -136,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const song = songs[currentSongIndex];
         nowPlayingTitle.textContent = song.name;
-        nowPlayingArtist.textContent = song.artist;
+        // REMOVED: nowPlayingArtist.textContent = song.artist || 'Unknown Artist'; 
         
         // Update playlist active item
         const playlistItems = playlist.querySelectorAll('.playlist-item');
@@ -161,24 +156,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const song = songs[index];
         
-        // Don't add to history if it's the same song and already playing
-        if (currentSongIndex !== index || !isPlaying) {
+        // Add to history if it's a new song, or if current song is being played from beginning
+        if (currentSongIndex !== index || audioElement.currentTime === 0 || !isPlaying) {
             addToHistory(song);
         }
 
-        // Remove the blocking check - always allow song switching
-        // This was preventing next/prev from working during playback
-        // Remove the blocking check - always allow song switching
-        // This was preventing next/prev from working during playback
-        
-        // If it's the same song but not playing, just resume
+        // If it's the same song and currently paused, just resume
         if (currentSongIndex === index && audioElement.src === song.url && !isPlaying) {
             audioElement.play()
                 .then(() => {
                     isPlaying = true;
                     playBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
-                    updatePlayerUI();
-                    updateTimeDisplay();
                 })
                 .catch(error => {
                     console.error('Resume playback failed:', error);
@@ -188,7 +176,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Always update currentSongIndex and switch songs
         currentSongIndex = index;
-        renderPlaylist();
+        renderPlaylist(); // Re-render to update active state
+        
+        // Revoke the previous Object URL to prevent memory leaks
+        if (audioElement.src) {
+            URL.revokeObjectURL(audioElement.src);
+        }
 
         // Reset audio element completely only when switching to a different song
         audioElement.pause();
@@ -207,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkDuration = () => {
             if (audioElement.duration && !isNaN(audioElement.duration)) {
                 durationEl.textContent = formatTime(audioElement.duration);
-                updateProgressBar();
+                updateProgressBar(); // This will also update time display
                 return true;
             }
             return false;
@@ -219,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 isPlaying = true;
                 playBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
                 updatePlayerUI();
-                updateTimeDisplay();
                 
                 // Check duration immediately
                 if (!checkDuration()) {
@@ -253,12 +245,11 @@ document.addEventListener('DOMContentLoaded', function() {
             pauseSong();
         } else {
             // If we're resuming the same song, just resume playback
-            if (audioElement.src && audioElement.src === songs[currentSongIndex].url) {
+            if (audioElement.src && audioElement.src === songs[currentSongIndex].url && audioElement.paused) {
                 audioElement.play()
                     .then(() => {
                         isPlaying = true;
                         playBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
-                        updateTimeDisplay();
                     })
                     .catch(error => {
                         console.error('Resume playback failed:', error);
@@ -271,13 +262,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create shuffled playlist
     function createShuffledPlaylist() {
+        // Ensure we create a shuffled list of indices based on current songs array
         shuffledPlaylist = Array.from({length: songs.length}, (_, i) => i);
         // Fisher-Yates shuffle algorithm
         for (let i = shuffledPlaylist.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffledPlaylist[i], shuffledPlaylist[j]] = [shuffledPlaylist[j], shuffledPlaylist[i]];
         }
-        shuffleIndex = 0;
+        shuffleIndex = 0; // Reset shuffle index
     }
     
     // Play previous song
@@ -286,14 +278,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (songs.length === 0) return;
         
         if (isShuffle) {
-            // Go back in shuffle order
+            // Go back in shuffle order. This specific logic will need careful testing for intended behavior.
+            // A common approach for "previous" in shuffle is to maintain a history of played songs.
             if (shuffleIndex > 1) {
-                shuffleIndex -= 2; // Go back two positions
-                currentSongIndex = shuffledPlaylist[shuffleIndex];
-                shuffleIndex++; // Will be used for next song
+                // If we've advanced, go back to the item before the last one played
+                shuffleIndex -= 2; // Move back two positions
+                currentSongIndex = shuffledPlaylist[shuffleIndex]; // This is the new song
+                shuffleIndex++; // Prepare shuffleIndex for next playNext call
             } else {
-                // If at beginning, wrap to a random song
-                shuffleIndex = 0;
+                // If at or near the beginning of the shuffled list, wrap around to a random (or last) song
+                // Current logic jumps to a random song.
+                shuffleIndex = 0; // Reset for next playNext or just pick a random new start
                 currentSongIndex = shuffledPlaylist[Math.floor(Math.random() * shuffledPlaylist.length)];
             }
         } else {
@@ -310,16 +305,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (songs.length === 0) return;
 
         if (isShuffle && songs.length > 1) {
-            // Use shuffled playlist for next song
+            // Recreate shuffled playlist if exhausted or empty
             if (shuffledPlaylist.length === 0 || shuffleIndex >= shuffledPlaylist.length) {
                 createShuffledPlaylist();
-                // Put current song at beginning and set index for next
+                // Ensure the currently playing song (if any) is not the first in the new shuffle to avoid immediate repeat
                 const currentPos = shuffledPlaylist.indexOf(currentSongIndex);
-                if (currentPos !== -1) {
+                if (currentPos !== -1 && currentPos !== 0) { // If current song is not already at the start
                     shuffledPlaylist.splice(currentPos, 1);
-                    shuffledPlaylist.unshift(currentSongIndex);
+                    shuffledPlaylist.unshift(currentSongIndex); // Move current song to front
                 }
-                shuffleIndex = 1;
+                shuffleIndex = 1; // Next song will be the second song in shuffled order
             }
             currentSongIndex = shuffledPlaylist[shuffleIndex];
             shuffleIndex++;
@@ -341,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
             createShuffledPlaylist();
             // Put current song at the beginning of the shuffle and set next position
             const currentPos = shuffledPlaylist.indexOf(currentSongIndex);
-            if (currentPos !== -1) {
+            if (currentPos !== -1 && currentPos !== 0) {
                 // Move current song to the front of the shuffled playlist
                 shuffledPlaylist.splice(currentPos, 1);
                 shuffledPlaylist.unshift(currentSongIndex);
@@ -363,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Don't set audioElement.loop = true, we'll handle repeat in the ended event
         } else {
             repeatBtn.classList.remove('text-indigo-600', 'dark:text-indigo-400');
-            audioElement.loop = false;
+            audioElement.loop = false; // Ensure loop is off if it somehow got set
         }
     }
     
@@ -379,13 +374,13 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="flex-1 min-w-0">
                 <h4 class="text-sm font-medium truncate">${song.name}</h4>
-                ${song.artist ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate">${song.artist}</p>` : ''}
+                <!-- REMOVED: ${song.artist ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate">${song.artist}</p>` : ''} -->
             </div>
         `;
 
         // Use mousedown for instant feedback instead of click
         playlistItem.addEventListener('mousedown', (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Prevent text selection
             playSong(Number(playlistItem.dataset.index));
         });
 
@@ -401,8 +396,11 @@ document.addEventListener('DOMContentLoaded', function() {
         playlistItems.forEach((item, idx) => {
             if (idx === currentSongIndex) {
                 item.classList.add('bg-indigo-100', 'dark:bg-gray-700');
+            } else {
+                item.classList.remove('bg-indigo-100', 'dark:bg-gray-700');
             }
         });
+        updatePlayerUI(); // Update now playing display after playlist change
     }
     
     // Add song to history (show all songs, including duplicates, most recent first)
@@ -410,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Do not remove existing history items, just add new one to the top
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center';
-        historyItem.dataset.songUrl = song.url;
+        historyItem.dataset.songUrl = song.url; // Good for future playback from history
 
         historyItem.innerHTML = `
             <div class="flex-shrink-0 w-12 h-12 bg-indigo-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-4">
@@ -418,9 +416,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="flex-1 min-w-0">
                 <h4 class="text-sm font-medium truncate">${song.name}</h4>
-                ${song.artist ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate">${song.artist}</p>` : ''}
+                <!-- REMOVED: ${song.artist ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate">${song.artist}</p>` : ''} -->
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
+            <div class="text-sm text-gray-500 dark:text-gray-400 ml-auto">
                 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}
             </div>
         `;
@@ -436,24 +434,35 @@ document.addEventListener('DOMContentLoaded', function() {
             if (file.type === 'audio/mpeg' || file.name.endsWith('.mp3')) {
                 const song = {
                     name: getSongName(file.name),
+                    // REMOVED: artist: '', 
                     url: URL.createObjectURL(file)
                 };
                 songs.push(song);
             }
         }
         
-        // Reset shuffle playlist when new songs are added
+        // Reset shuffle playlist when new songs are added if shuffle is active
         if (isShuffle) {
             createShuffledPlaylist();
+            // Re-align shuffle index after adding new songs
+            const currentPos = shuffledPlaylist.indexOf(currentSongIndex);
+            if (currentPos !== -1 && currentPos !== 0) {
+                shuffledPlaylist.splice(currentPos, 1);
+                shuffledPlaylist.unshift(currentSongIndex);
+            }
+            shuffleIndex = 1;
         }
         
         renderPlaylist();
         if (songs.length > 0) {
             uploadContainer.classList.add('hidden');
             playerUI.classList.remove('hidden');
-            // Play the first song if not already playing
-            if (!isPlaying) {
+            // Play the first song if not already playing or if playlist was empty
+            if (!isPlaying || audioElement.src === '' || currentSongIndex === -1) {
                 playSong(0);
+            } else {
+                // If songs were added but a song was already playing, just update UI
+                updatePlayerUI();
             }
         }
     }
@@ -512,8 +521,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Player controls
     playBtn.addEventListener('click', togglePlay);
-    
-    // Enhanced next/prev functions with better responsiveness
     prevBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -541,7 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
     shuffleBtn.addEventListener('click', toggleShuffle);
     repeatBtn.addEventListener('click', toggleRepeat);
     
-    // Fix: Add tab switching for sidebar buttons with smooth animations
+    // Add tab switching for sidebar buttons with smooth animations
     function switchToSection(targetSection) {
         const sections = [playerSection, historySection, settingsSection];
         const tabs = [playerTab, historyTab, settingsTab];
@@ -613,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     logoElements.forEach(logo => {
         logo.addEventListener('click', () => {
-            // Option 1: Simple page reload
+            // Option 1: Simple page reload is effective for a full reset
             location.reload();
             
             // Option 2: Alternative - reset to homepage (if you prefer this instead)
@@ -647,12 +654,4 @@ function formatTime(seconds) {
 function getSongName(filename) {
     // Remove only the last .mp3 or .mpeg extension, not the last parenthesis
     return filename.replace(/\.(mp3|mpeg)$/i, '');
-
-
-    //Logo reset function
-    const logoElements = document.querySelectorAll('img[src="Logo.png"]');
-
-    logoElements.forEach(logo => {
-        logo.src = "Logo.png";
-    });
 }
