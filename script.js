@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let audioElement = new Audio();
     let currentSongIndex = 0;
     let songs = [];
+    // Track created object URLs so we can revoke them on unload or when explicitly removing songs
+    let createdObjectURLs = [];
     let isPlaying = false;
     let isShuffle = false;
     let isRepeat = false;
@@ -178,10 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
         currentSongIndex = index;
         renderPlaylist(); // Re-render to update active state
         
-        // Revoke the previous Object URL to prevent memory leaks
-        if (audioElement.src) {
-            URL.revokeObjectURL(audioElement.src);
-        }
+        // NOTE: Do NOT revoke the previous Object URL here. Revoking it immediately
+        // makes the URL unusable later when the user tries to re-play that file
+        // (which is likely the cause of the player breaking when rapidly selecting
+        // many playlist items). We'll revoke object URLs only on page unload or
+        // when a song is explicitly removed from the playlist.
 
         // Reset audio element completely only when switching to a different song
         audioElement.pause();
@@ -438,6 +441,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     url: URL.createObjectURL(file)
                 };
                 songs.push(song);
+                // Keep track of URLs created so we can revoke them later (on unload or when removing songs)
+                createdObjectURLs.push(song.url);
             }
         }
         
@@ -649,6 +654,21 @@ function formatTime(seconds) {
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
+
+// Revoke any created object URLs when the page is unloaded to avoid memory leaks.
+function revokeAllObjectURLs() {
+    if (!createdObjectURLs || createdObjectURLs.length === 0) return;
+    createdObjectURLs.forEach(url => {
+        try {
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            // ignore
+        }
+    });
+    createdObjectURLs = [];
+}
+
+window.addEventListener('beforeunload', revokeAllObjectURLs);
 
 // Fix: Ensure song name is not cut off by removing file extension only, not the last parenthesis
 function getSongName(filename) {
