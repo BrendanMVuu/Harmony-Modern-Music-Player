@@ -1,1 +1,1 @@
-The website still has some bug fixing to do!
+Harmony Modern Music Player is now in Official Fixed Release v.2025.10.25
