@@ -74,6 +74,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const playerSection = document.getElementById('player-section');
     const historySection = document.getElementById('history-section');
     const settingsSection = document.getElementById('settings-section');
+
+    // Dark / Light theme toggle (simple: only 'dark' or 'light')
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+
+    function setTheme(theme) {
+        // theme is expected to be 'dark' or 'light'
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            if (themeIcon) themeIcon.className = 'fas fa-sun text-xl';
+            if (themeToggleBtn) themeToggleBtn.setAttribute('aria-pressed', 'true');
+        } else {
+            document.documentElement.classList.remove('dark');
+            if (themeIcon) themeIcon.className = 'fas fa-moon text-xl';
+            if (themeToggleBtn) themeToggleBtn.setAttribute('aria-pressed', 'false');
+        }
+    }
+
+    // Initialize theme from localStorage (default to 'light')
+    try {
+        const saved = localStorage.getItem('harmony-theme') || 'light';
+        setTheme(saved);
+    } catch (e) {
+        // If localStorage unavailable, fallback to light
+        setTheme('light');
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            try {
+                const current = localStorage.getItem('harmony-theme') || 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('harmony-theme', next);
+                setTheme(next);
+            } catch (e) {
+                // Fallback if localStorage not available
+                const isDark = document.documentElement.classList.toggle('dark');
+                setTheme(isDark ? 'dark' : 'light');
+            }
+        });
+    }
     
     // Debug: Check if buttons exist (consider removing for production)
     console.log('DOM Elements Check:');
@@ -152,19 +193,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (songs.length === 0) return;
         if (index >= songs.length) index = 0;
         if (index < 0) index = songs.length - 1;
-        
+        // Capture previous song index before we change it (important for history/resume logic)
+        const prevIndex = currentSongIndex;
+
         // Initialize audio context if needed
         initAudioContext();
         
         const song = songs[index];
         
         // Add to history if it's a new song, or if current song is being played from beginning
-        if (currentSongIndex !== index || audioElement.currentTime === 0 || !isPlaying) {
+        // Use prevIndex to ensure Prev/Next callers (which set currentSongIndex before calling)
+        if (prevIndex !== index || audioElement.currentTime === 0 || !isPlaying) {
             addToHistory(song);
         }
 
         // If it's the same song and currently paused, just resume
-        if (currentSongIndex === index && audioElement.src === song.url && !isPlaying) {
+        if (prevIndex === index && audioElement.src === song.url && !isPlaying) {
             audioElement.play()
                 .then(() => {
                     isPlaying = true;
@@ -176,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Always update currentSongIndex and switch songs
+    // Always update currentSongIndex and switch songs
         currentSongIndex = index;
         renderPlaylist(); // Re-render to update active state
         
@@ -279,34 +323,34 @@ document.addEventListener('DOMContentLoaded', function() {
     function playPrev() {
         console.log('playPrev called - current song index:', currentSongIndex, 'total songs:', songs.length);
         if (songs.length === 0) return;
-        
+        let nextIndex;
         if (isShuffle) {
             // Go back in shuffle order. This specific logic will need careful testing for intended behavior.
             // A common approach for "previous" in shuffle is to maintain a history of played songs.
             if (shuffleIndex > 1) {
                 // If we've advanced, go back to the item before the last one played
                 shuffleIndex -= 2; // Move back two positions
-                currentSongIndex = shuffledPlaylist[shuffleIndex]; // This is the new song
+                nextIndex = shuffledPlaylist[shuffleIndex]; // This is the new song
                 shuffleIndex++; // Prepare shuffleIndex for next playNext call
             } else {
                 // If at or near the beginning of the shuffled list, wrap around to a random (or last) song
                 // Current logic jumps to a random song.
                 shuffleIndex = 0; // Reset for next playNext or just pick a random new start
-                currentSongIndex = shuffledPlaylist[Math.floor(Math.random() * shuffledPlaylist.length)];
+                nextIndex = shuffledPlaylist[Math.floor(Math.random() * shuffledPlaylist.length)];
             }
         } else {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            nextIndex = (currentSongIndex - 1 + songs.length) % songs.length;
         }
-        
-        console.log('playPrev - new song index:', currentSongIndex, 'song name:', songs[currentSongIndex]?.name);
-        playSong(currentSongIndex);
+
+        console.log('playPrev - new song index:', nextIndex, 'song name:', songs[nextIndex]?.name);
+        playSong(nextIndex);
     }
     
     // Play next song
     function playNext() {
         console.log('playNext called - current song index:', currentSongIndex, 'total songs:', songs.length);
         if (songs.length === 0) return;
-
+        let nextIndex;
         if (isShuffle && songs.length > 1) {
             // Recreate shuffled playlist if exhausted or empty
             if (shuffledPlaylist.length === 0 || shuffleIndex >= shuffledPlaylist.length) {
@@ -319,15 +363,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 shuffleIndex = 1; // Next song will be the second song in shuffled order
             }
-            currentSongIndex = shuffledPlaylist[shuffleIndex];
+            nextIndex = shuffledPlaylist[shuffleIndex];
             shuffleIndex++;
         } else {
             // Normal sequential play
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            nextIndex = (currentSongIndex + 1) % songs.length;
         }
-        
-        console.log('playNext - new song index:', currentSongIndex, 'song name:', songs[currentSongIndex]?.name);
-        playSong(currentSongIndex);
+
+        console.log('playNext - new song index:', nextIndex, 'song name:', songs[nextIndex]?.name);
+        playSong(nextIndex);
     }
     
     // Toggle shuffle
